@@ -1,23 +1,18 @@
 exports.handler = async function(event, context) {
-  const REPO = 'satriapamudji/optimus-dashboard';
-  const BRANCH = 'main';
-  const TOKEN = process.env.GITHUB_TOKEN;
+  const BASE_URL = 'https://raw.githubusercontent.com/satriapamudji/optimus-dashboard/main';
   
-  async function fetchFile(filename) {
-    const url = `https://api.github.com/repos/${REPO}/contents/${filename}?ref=${BRANCH}`;
-    const res = await fetch(url, {
-      headers: {
-        'Authorization': `token ${TOKEN}`,
-        'Accept': 'application/vnd.github.v3+json'
-      }
-    });
-    if (!res.ok) return null;
-    const data = await res.json();
-    return JSON.parse(Buffer.from(data.content, 'base64').toString());
+  async function fetchJSON(filename) {
+    try {
+      const res = await fetch(`${BASE_URL}/${filename}?t=${Date.now()}`);
+      if (!res.ok) return null;
+      return await res.json();
+    } catch (e) {
+      return null;
+    }
   }
   
-  const reports = await fetchFile('reports.json') || [];
-  const status = await fetchFile('status.json');
+  const reports = await fetchJSON('reports.json') || [];
+  const status = await fetchJSON('status.json');
   
   return {
     statusCode: 200,
