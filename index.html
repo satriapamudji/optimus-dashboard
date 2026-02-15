@@ -196,7 +196,13 @@
     // Calls Netlify Function which proxies to Fomolt API
     async function fetchFomolt(endpoint) {
       try {
-        const res = await fetch('/api' + endpoint, { cache: 'no-cache' });
+        // Try redirect path first, then direct function path
+        let url = '/api' + endpoint;
+        let res = await fetch(url, { cache: 'no-cache' });
+        if (res.status === 404) {
+          url = '/netlify/functions/api' + endpoint;
+          res = await fetch(url, { cache: 'no-cache' });
+        }
         if (!res.ok) throw new Error(res.status);
         const json = await res.json();
         return json.success ? json.response : null;
