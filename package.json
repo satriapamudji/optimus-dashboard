@@ -1,0 +1,12 @@
+{
+  "name": "optimus-dashboard",
+  "version": "1.0.0",
+  "description": "Optimus Trading Terminal Dashboard",
+  "main": "functions/api.js",
+  "scripts": {
+    "start": "netlify dev"
+  },
+  "dependencies": {
+    "node-fetch": "^2.7.0"
+  }
+}

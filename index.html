@@ -71,6 +71,17 @@
     .stat-label { font-size: 12px; color: #8b949e; }
     .stat-pnl { font-size: 16px; margin-top: 4px; }
     
+    .tabs { display: flex; gap: 8px; margin-bottom: 16px; }
+    .tab {
+      padding: 8px 16px;
+      border-radius: 6px;
+      background: #21262d;
+      color: #8b949e;
+      cursor: pointer;
+      font-size: 12px;
+    }
+    .tab.active { background: #0052ff; color: white; }
+    
     .decision {
       font-size: 14px;
       padding: 12px;
@@ -117,10 +128,15 @@
   <div class="container">
     <div class="header">
       <div class="logo">🤖 OPTIMUS</div>
-      <div>
+      <div id="modeBadge">
         <span class="status-badge status-paper">PAPER</span>
         <span class="status-badge status-active">ACTIVE</span>
       </div>
+    </div>
+    
+    <div class="tabs">
+      <div class="tab active" data-mode="paper" onclick="setMode('paper')">Paper Portfolio</div>
+      <div class="tab" data-mode="live" onclick="setMode('live')">Live Portfolio</div>
     </div>
     
     <div class="grid">
@@ -164,12 +180,26 @@
   </div>
 
   <script>
-    // Reads from status.json in the repo (updated by heartbeat)
-    async function fetchStatus() {
+    let currentMode = 'paper';
+    
+    function setMode(mode) {
+      currentMode = mode;
+      document.querySelectorAll('.tab').forEach(t => {
+        t.classList.toggle('active', t.dataset.mode === mode);
+      });
+      document.getElementById('modeBadge').innerHTML = mode === 'paper' 
+        ? '<span class="status-badge status-paper">PAPER</span> <span class="status-badge status-active">ACTIVE</span>'
+        : '<span class="status-badge status-live">LIVE</span> <span class="status-badge status-active">ACTIVE</span>';
+      updateDashboard();
+    }
+    
+    // Calls Netlify Function which proxies to Fomolt API
+    async function fetchFomolt(endpoint) {
       try {
-        const res = await fetch('/status.json', { cache: 'no-cache' });
+        const res = await fetch('/api' + endpoint, { cache: 'no-cache' });
         if (!res.ok) throw new Error(res.status);
-        return await res.json();
+        const json = await res.json();
+        return json.success ? json.response : null;
       } catch (e) {
         console.error('Fetch error:', e);
         return null;
@@ -187,68 +217,41 @@
     }
     
     async function updateDashboard() {
-      const data = await fetchStatus();
+      const endpoint = currentMode === 'paper' 
+        ? '/agent/paper/dex/portfolio'
+        : '/agent/live/dex/portfolio';
       
-      if (!data) {
+      const [portfolio, perf] = await Promise.all([
+        fetchFomolt(endpoint),
+        fetchFomolt(currentMode === 'paper' ? '/agent/paper/dex/performance' : '/agent/live/dex/performance')
+      ]);
+      
+      if (!portfolio) {
         document.getElementById('positions').innerHTML = '<div class="error">Unable to load data</div>';
         return;
       }
       
-      // Portfolio
-      if (data.portfolio) {
-        const p = data.portfolio;
-        document.getElementById('totalValue').textContent = formatUSD(p.totalPortfolioValue);
-        document.getElementById('totalPnl').textContent = formatUSD(p.totalUnrealizedPnl);
-        document.getElementById('totalPnl').className = 'stat-pnl ' + (p.totalUnrealizedPnl >= 0 ? 'pos-pnl' : 'pos-pnl negative');
-        
-        // Positions
-        const positionsHtml = (p.positions || []).map(pos => {
-          const pnlVal = pos.unrealizedPnl || 0;
-          return `<div class="position"><span class="pos-symbol">${pos.symbol}</span><span>${parseFloat(pos.quantity).toFixed(2)}</span><span class="pos-pnl ${pnlVal >= 0 ? '' : 'negative'}">${formatUSD(pnlVal)}</span></div>`;
-        }).join('') || '<div style="color:#8b949e">No positions</div>';
-        document.getElementById('positions').innerHTML = positionsHtml;
-      }
+      // Portfolio value
+      document.getElementById('totalValue').textContent = formatUSD(portfolio.totalPortfolioValue);
+      document.getElementById('totalPnl').textContent = formatUSD(portfolio.totalUnrealizedPnl);
+      document.getElementById('totalPnl').className = 'stat-pnl ' + (portfolio.totalUnrealizedPnl >= 0 ? 'pos-pnl' : 'pos-pnl negative');
+      
+      // Positions
+      const positionsHtml = (portfolio.positions || []).map(pos => {
+        const pnlVal = pos.unrealizedPnl || 0;
+        return `<div class="position"><span class="pos-symbol">${pos.symbol}</span><span>${parseFloat(pos.quantity).toFixed(4)}</span><span class="pos-pnl ${pnlVal >= 0 ? '' : 'negative'}">${formatUSD(pnlVal)}</span></div>`;
+      }).join('') || '<div style="color:#8b949e">No positions</div>';
+      document.getElementById('positions').innerHTML = positionsHtml;
       
       // Performance
-      if (data.performance) {
-        const perf = data.performance;
+      if (perf) {
         document.getElementById('totalReturn').textContent = formatPct(perf.totalReturnPct);
         document.getElementById('totalReturn').className = 'stat-value ' + (perf.totalReturnPct >= 0 ? 'pos-pnl' : 'pos-pnl negative');
         document.getElementById('totalPnlAbs').textContent = formatUSD(perf.totalPnl);
       }
       
-      // Signal
-      const bias = data.signalBias || 'NEUTRAL';
-      document.getElementById('signalBias').textContent = bias;
-      document.getElementById('signalConfidence').textContent = 'Confidence: ' + (data.confidence || 'low');
-      
-      const fill = document.getElementById('signalFill');
-      if (bias.toUpperCase() === 'BULLISH') {
-        fill.className = 'signal-fill signal-bull';
-        fill.style.width = (data.confidence === 'high' ? '90%' : '70%');
-      } else if (bias.toUpperCase() === 'BEARISH') {
-        fill.className = 'signal-fill signal-bear';
-        fill.style.width = (data.confidence === 'high' ? '90%' : '70%');
-      } else {
-        fill.className = 'signal-fill signal-neutral';
-        fill.style.width = '50%';
-      }
-      
-      // Decision
-      if (data.decision) {
-        const parts = data.decision.split('|');
-        const decision = parts[0].trim();
-        const reason = parts.slice(1).join('|').trim() || 'No reason';
-        document.getElementById('lastDecision').innerHTML = `<strong>${decision}</strong><br><span style="color:#8b949e">${reason}</span>`;
-        document.getElementById('lastDecision').className = 'decision decision-' + decision.toLowerCase();
-      } else {
-        document.getElementById('lastDecision').innerHTML = '<strong>HOLD</strong><br><span style="color:#8b949e">No setups meeting criteria</span>';
-      }
-      
       // Updated time
-      if (data.updatedAt) {
-        document.getElementById('updatedAt').textContent = new Date(data.updatedAt).toLocaleTimeString();
-      }
+      document.getElementById('updatedAt').textContent = new Date().toLocaleTimeString();
     }
     
     updateDashboard();
