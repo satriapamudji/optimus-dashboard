@@ -1,9 +1,14 @@
-[[redirect]]
-  from = "/api/*"
-  to = "/netlify/functions/api/:splat"
+[build]
+  publish = "."
+  command = "echo 'No build needed'"
+  functions = "netlify/functions"
+
+[[redirects]]
+  from = "/api"
+  to = "/.netlify/functions/api"
   status = 200
 
-[[redirect]]
-  from = "/.netlify/functions/*"
-  to = "/netlify/functions/:splat"
+[[redirects]]
+  from = "/decision"
+  to = "/.netlify/functions/decision"
   status = 200
