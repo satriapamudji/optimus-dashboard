@@ -1,26 +1,39 @@
+const fetch = require('node-fetch');
+
+const API_BASE = 'https://fomolt.com/api/v1';
+const API_KEY = process.env.FOMOLT_API_KEY || 'fmlt_7ebd009f1574668a71ebf4970795ddd4';
+
 exports.handler = async function(event, context) {
-  const BASE_URL = 'https://raw.githubusercontent.com/satriapamudji/optimus-dashboard/main';
+  const path = event.path.replace(/^\/api/, '');
+  const url = API_BASE + path;
   
-  async function fetchJSON(filename) {
-    try {
-      const res = await fetch(`${BASE_URL}/${filename}?t=${Date.now()}`);
-      if (!res.ok) return null;
-      return await res.json();
-    } catch (e) {
-      return null;
-    }
+  try {
+    const response = await fetch(url, {
+      headers: {
+        'Authorization': `Bearer ${API_KEY}`,
+        'User-Agent': 'OptimusDashboard/1.0'
+      }
+    });
+    
+    const data = await response.json();
+    
+    return {
+      statusCode: response.status,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'Content-Type',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    };
+  } catch (error) {
+    return {
+      statusCode: 500,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ error: error.message })
+    };
   }
-  
-  const reports = await fetchJSON('reports.json') || [];
-  const status = await fetchJSON('status.json');
-  
-  return {
-    statusCode: 200,
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      reports,
-      status,
-      updatedAt: new Date().toISOString()
-    })
-  };
-}
+};
