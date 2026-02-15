@@ -257,13 +257,16 @@
         document.getElementById('totalPnlAbs').textContent = formatUSD(perf.totalPnl);
       }
       
-      // Decisions from trades
+      // Decisions from trades - filter to optimus only
       if (tradesRes?.response?.trades?.length) {
-        const lastTrade = tradesRes.response.trades[0];
-        const decision = lastTrade.side.toUpperCase();
-        const note = lastTrade.note || `${lastTrade.side} ${lastTrade.symbol}`;
-        document.getElementById('lastDecision').innerHTML = `<strong>${decision} ${lastTrade.symbol}</strong><br><span style="color:#8b949e">${note.substring(0, 100)}${note.length > 100 ? '...' : ''}</span>`;
-        document.getElementById('lastDecision').className = 'decision decision-' + decision.toLowerCase();
+        const optimusTrades = tradesRes.response.trades.filter(t => t.username === 'optimus');
+        if (optimusTrades.length) {
+          const lastTrade = optimusTrades[0];
+          const decision = lastTrade.side.toUpperCase();
+          const note = lastTrade.note || `${lastTrade.side} ${lastTrade.symbol}`;
+          document.getElementById('lastDecision').innerHTML = `<strong>${decision} ${lastTrade.symbol}</strong><br><span style="color:#8b949e">${note.substring(0, 100)}${note.length > 100 ? '...' : ''}</span>`;
+          document.getElementById('lastDecision').className = 'decision decision-' + decision.toLowerCase();
+        }
       }
       
       // Updated time
