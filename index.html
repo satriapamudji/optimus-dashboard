@@ -1,152 +1,277 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Optimus Alpha | Crypto Trading Signals</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg-primary: #0a0a0f;
-            --bg-secondary: #12121a;
-            --bg-card: #16161f;
-            --bg-card-hover: #1c1c28;
-            --accent-base: #0052ff;
-            --accent-sol: #9945ff;
-            --accent-green: #00ff88;
-            --accent-red: #ff3366;
-            --accent-yellow: #ffbe0b;
-            --text-primary: #f0f0f5;
-            --text-secondary: #8888a0;
-            --text-muted: #555566;
-            --border: #2a2a3a;
-            --glow-base: rgba(0, 82, 255, 0.3);
-            --glow-sol: rgba(153, 69, 255, 0.3);
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Outfit', sans-serif; background: var(--bg-primary); color: var(--text-primary); min-height: 100vh; line-height: 1.6; }
-        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
-        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 3rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border); }
-        .logo { display: flex; align-items: center; gap: 0.75rem; }
-        .logo-icon { width: 40px; height: 40px; background: linear-gradient(135deg, var(--accent-base), var(--accent-sol)); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
-        .logo h1 { font-size: 1.5rem; font-weight: 700; background: linear-gradient(135deg, var(--text-primary), var(--text-secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .status-badge { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background: var(--bg-card); border-radius: 20px; font-size: 0.875rem; color: var(--text-secondary); }
-        .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent-green); animation: pulse 2s infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-        .network-tabs { display: flex; gap: 1rem; margin-bottom: 2rem; }
-        .network-tab { padding: 0.75rem 1.5rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; color: var(--text-secondary); font-family: 'JetBrains Mono', monospace; font-weight: 600; cursor: pointer; transition: all 0.2s; }
-        .network-tab:hover { background: var(--bg-card-hover); }
-        .network-tab.active { border-color: var(--accent-base); color: var(--text-primary); box-shadow: 0 0 20px var(--glow-base); }
-        .network-tab.active.sol { border-color: var(--accent-sol); box-shadow: 0 0 20px var(--glow-sol); }
-        .reports-grid { display: grid; gap: 1.5rem; }
-        .report-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; transition: all 0.3s; }
-        .report-card:hover { background: var(--bg-card-hover); transform: translateY(-2px); }
-        .report-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; }
-        .report-network { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.25rem 0.75rem; border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; }
-        .report-network.base { background: rgba(0, 82, 255, 0.15); color: var(--accent-base); }
-        .report-network.sol { background: rgba(153, 69, 255, 0.15); color: var(--accent-sol); }
-        .report-time { font-size: 0.875rem; color: var(--text-muted); }
-        .report-title { font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; }
-        .metrics-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1rem; }
-        .metric { background: var(--bg-secondary); padding: 0.75rem; border-radius: 8px; }
-        .metric-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.25rem; }
-        .metric-value { font-family: 'JetBrains Mono', monospace; font-size: 1rem; font-weight: 600; }
-        .metric-value.price { color: var(--text-primary); }
-        .metric-value.liquidity { color: var(--accent-yellow); }
-        .metric-value.volume { color: var(--accent-base); }
-        .metric-value.trend { color: var(--accent-green); }
-        .narrative { background: var(--bg-secondary); padding: 1rem; border-radius: 8px; margin-bottom: 1rem; }
-        .narrative h4 { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem; }
-        .narrative p { font-size: 0.875rem; color: var(--text-secondary); line-height: 1.7; }
-        .verdict { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; border-radius: 6px; font-weight: 600; font-size: 0.875rem; }
-        .verdict.bullish { background: rgba(0, 255, 136, 0.15); color: var(--accent-green); }
-        .verdict.bearish { background: rgba(255, 51, 102, 0.15); color: var(--accent-red); }
-        .verdict.neutral { background: rgba(255, 190, 11, 0.15); color: var(--accent-yellow); }
-        .empty-state { text-align: center; padding: 4rem 2rem; color: var(--text-muted); }
-        .empty-state-icon { font-size: 3rem; margin-bottom: 1rem; }
-        footer { margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid var(--border); text-align: center; color: var(--text-muted); font-size: 0.875rem; }
-        .last-updated { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem; }
-        @media (max-width: 768px) { .container { padding: 1rem; } .metrics-grid { grid-template-columns: repeat(2, 1fr); } header { flex-direction: column; gap: 1rem; align-items: flex-start; } }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🤖 Optimus Trading Terminal</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      background: #0a0e17;
+      color: #e6edf3;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container { max-width: 800px; margin: 0 auto; }
+    
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid #21262d;
+    }
+    .logo { font-size: 24px; font-weight: bold; }
+    .status-badge {
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .status-active { background: #1a3d2e; color: #3fb950; }
+    .status-paper { background: #3d2e1a; color: #d29922; }
+    .status-live { background: #3d1a1a; color: #f85149; }
+    
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .card {
+      background: #161b22;
+      border: 1px solid #21262d;
+      border-radius: 8px;
+      padding: 16px;
+    }
+    .card.full { grid-column: 1 / -1; }
+    .card-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #8b949e;
+      margin-bottom: 12px;
+    }
+    
+    .position {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid #21262d;
+      font-size: 13px;
+    }
+    .position:last-child { border-bottom: none; }
+    .pos-symbol { font-weight: 600; }
+    .pos-pnl { color: #3fb950; }
+    .pos-pnl.negative { color: #f85149; }
+    
+    .stat-value { font-size: 28px; font-weight: bold; }
+    .stat-label { font-size: 12px; color: #8b949e; }
+    .stat-pnl { font-size: 16px; margin-top: 4px; }
+    
+    .tabs { display: flex; gap: 8px; margin-bottom: 16px; }
+    .tab {
+      padding: 8px 16px;
+      border-radius: 6px;
+      background: #21262d;
+      color: #8b949e;
+      cursor: pointer;
+      font-size: 12px;
+    }
+    .tab.active { background: #0052ff; color: white; }
+    
+    .decision {
+      font-size: 14px;
+      padding: 12px;
+      background: #0d1117;
+      border-radius: 6px;
+      margin-top: 8px;
+    }
+    .decision-hold { border-left: 3px solid #8b949e; }
+    .decision-buy { border-left: 3px solid #3fb950; }
+    .decision-sell { border-left: 3px solid #f85149; }
+    
+    .signal-bar {
+      height: 8px;
+      background: #21262d;
+      border-radius: 4px;
+      margin-top: 8px;
+      overflow: hidden;
+    }
+    .signal-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.5s ease;
+    }
+    .signal-bull { background: linear-gradient(90deg, #238636, #3fb950); }
+    .signal-bear { background: linear-gradient(90deg, #da3633, #f85149); }
+    .signal-neutral { background: #8b949e; }
+    
+    .updated {
+      text-align: center;
+      font-size: 11px;
+      color: #8b949e;
+      margin-top: 20px;
+    }
+    
+    .loading { text-align: center; padding: 40px; color: #8b949e; }
+    .error { color: #f85149; padding: 20px; text-align: center; }
+    
+    @media (max-width: 600px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <div class="logo">
-                <div class="logo-icon">🤖</div>
-                <h1>Optimus Alpha</h1>
-            </div>
-            <div class="status-badge">
-                <div class="status-dot"></div>
-                <span>Live Scanning</span>
-            </div>
-        </header>
-        <div class="network-tabs">
-            <button class="network-tab active" data-network="all">All Networks</button>
-            <button class="network-tab" data-network="BASE">BASE</button>
-            <button class="network-tab sol" data-network="SOL">SOLANA</button>
-        </div>
-        <div class="reports-grid" id="reports">
-            <div class="empty-state">
-                <div class="empty-state-icon">📡</div>
-                <p>Loading alpha reports...</p>
-            </div>
-        </div>
-        <footer>
-            <p>Optimus Alpha Dashboard • Auto-updates every 2 hours</p>
-            <p class="last-updated" id="lastUpdated"></p>
-        </footer>
+  <div class="container">
+    <div class="header">
+      <div class="logo">🤖 OPTIMUS</div>
+      <div id="modeBadge">
+        <span class="status-badge status-paper">PAPER</span>
+        <span class="status-badge status-active">ACTIVE</span>
+      </div>
     </div>
-    <script>
-        let allReports = [];
-        async function loadData() {
-            try {
-                const response = await fetch('/api');
-                if (!response.ok) throw new Error('Failed to load');
-                const data = await response.json();
-                allReports = data.reports || [];
-                renderReports('all');
-                if (data.updatedAt) {
-                    document.getElementById('lastUpdated').textContent = 'Last updated: ' + new Date(data.updatedAt).toLocaleString('en-US', { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' }) + ' UTC';
-                }
-            } catch (e) {
-                console.error('Load error:', e);
-                document.getElementById('reports').innerHTML = '<div class="empty-state"><div class="empty-state-icon">⚠️</div><p>Unable to load data</p></div>';
-            }
+    
+    <div class="tabs">
+      <div class="tab active" data-mode="paper" onclick="setMode('paper')">Paper Portfolio</div>
+      <div class="tab" data-mode="live" onclick="setMode('live')">Live Portfolio</div>
+    </div>
+    
+    <div class="grid">
+      <div class="card">
+        <div class="card-title">Portfolio Value</div>
+        <div class="stat-value" id="totalValue">$0.00</div>
+        <div class="stat-pnl" id="totalPnl">—</div>
+      </div>
+      
+      <div class="card">
+        <div class="card-title">Total Return</div>
+        <div class="stat-value" id="totalReturn">0.00%</div>
+        <div class="stat-label" id="totalPnlAbs">—</div>
+      </div>
+      
+      <div class="card">
+        <div class="card-title">Positions</div>
+        <div id="positions"><div class="loading">Loading...</div></div>
+      </div>
+      
+      <div class="card">
+        <div class="card-title">Signal Bias</div>
+        <div class="stat-value" id="signalBias">NEUTRAL</div>
+        <div class="stat-label" id="signalConfidence">Confidence: low</div>
+        <div class="signal-bar">
+          <div id="signalFill" class="signal-fill signal-neutral" style="width: 50%"></div>
+        </div>
+      </div>
+      
+      <div class="card full">
+        <div class="card-title">Last Decision</div>
+        <div id="lastDecision" class="decision decision-hold">
+          <strong>HOLD</strong><br><span style="color:#8b949e">Waiting for heartbeat...</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="updated">
+      Last updated: <span id="updatedAt">—</span>
+    </div>
+  </div>
+
+  <script>
+    let currentMode = 'paper';
+    
+    function setMode(mode) {
+      currentMode = mode;
+      document.querySelectorAll('.tab').forEach(t => {
+        t.classList.toggle('active', t.dataset.mode === mode);
+      });
+      document.getElementById('modeBadge').innerHTML = mode === 'paper' 
+        ? '<span class="status-badge status-paper">PAPER</span> <span class="status-badge status-active">ACTIVE</span>'
+        : '<span class="status-badge status-live">LIVE</span> <span class="status-badge status-active">ACTIVE</span>';
+      updateDashboard();
+    }
+    
+    // Calls Netlify Function which proxies to Fomolt API
+    async function fetchFomolt(endpoint) {
+      try {
+        // Try redirect path first, then direct function path
+        let url = '/api' + endpoint;
+        let res = await fetch(url, { cache: 'no-cache' });
+        if (res.status === 404) {
+          url = '/netlify/functions/api' + endpoint;
+          res = await fetch(url, { cache: 'no-cache' });
         }
-        function renderReports(network) {
-            const container = document.getElementById('reports');
-            const filtered = network === 'all' ? allReports : allReports.filter(r => r.network === network);
-            if (filtered.length === 0) {
-                container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📡</div><p>No reports yet</p></div>';
-                return;
-            }
-            container.innerHTML = filtered.map(report => `
-                <div class="report-card">
-                    <div class="report-header">
-                        <span class="report-network ${report.network.toLowerCase()}">${report.network}</span>
-                        <span class="report-time">${formatTime(report.timestamp)}</span>
-                    </div>
-                    <h3 class="report-title">${report.token || 'Alpha Scan'}</h3>
-                    <div class="metrics-grid">
-                        <div class="metric"><div class="metric-label">Price</div><div class="metric-value price">$${report.price || '—'}</div></div>
-                        <div class="metric"><div class="metric-label">Liquidity</div><div class="metric-value liquidity">$${formatNumber(report.liquidity)}</div></div>
-                        <div class="metric"><div class="metric-label">Volume</div><div class="metric-value volume">$${formatNumber(report.volume)}</div></div>
-                        <div class="metric"><div class="metric-label">Trend</div><div class="metric-value trend">${report.trend || '—'}</div></div>
-                    </div>
-                    <div class="narrative"><h4>Narrative</h4><p>${report.narrative || 'No narrative.'}</p></div>
-                    <div class="verdict ${(report.verdict || 'neutral').toLowerCase()}">${getVerdictIcon(report.verdict)} ${report.verdict || 'NEUTRAL'}</div>
-                </div>
-            `).join('');
-        }
-        function formatTime(ts) { if (!ts) return '—'; return new Date(ts).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: 'UTC' }) + ' UTC'; }
-        function formatNumber(num) { if (!num) return '—'; if (num >= 1e6) return (num / 1e6).toFixed(2) + 'M'; if (num >= 1e3) return (num / 1e3).toFixed(1) + 'K'; return num.toString(); }
-        function getVerdictIcon(verdict) { const v = (verdict || '').toLowerCase(); if (v === 'bullish') return '🟢'; if (v === 'bearish') return '🔴'; return '🟡'; }
-        document.querySelectorAll('.network-tab').forEach(tab => { tab.addEventListener('click', () => { document.querySelectorAll('.network-tab').forEach(t => t.classList.remove('active')); tab.classList.add('active'); renderReports(tab.dataset.network); }); });
-        loadData();
-        setInterval(loadData, 5 * 60 * 1000);
-    </script>
+        if (!res.ok) throw new Error(res.status);
+        const json = await res.json();
+        return json.success ? json.response : null;
+      } catch (e) {
+        console.error('Fetch error:', e);
+        return null;
+      }
+    }
+    
+    function formatUSD(n) {
+      return '$' + (n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+    
+    function formatPct(n) {
+      if (!n && n !== 0) return '—';
+      const sign = n >= 0 ? '+' : '';
+      return sign + n.toFixed(2) + '%';
+    }
+    
+    async function updateDashboard() {
+      const endpoint = currentMode === 'paper' 
+        ? '/agent/paper/dex/portfolio'
+        : '/agent/live/dex/portfolio';
+      
+      const [portfolio, perf, tradesRes] = await Promise.all([
+        fetchFomolt(endpoint),
+        fetchFomolt(currentMode === 'paper' ? '/agent/paper/dex/performance' : '/agent/live/dex/performance'),
+        fetchFomolt('/trades?limit=3')
+      ]);
+      
+      if (!portfolio) {
+        document.getElementById('positions').innerHTML = '<div class="error">Unable to load data</div>';
+        return;
+      }
+      
+      // Portfolio value
+      document.getElementById('totalValue').textContent = formatUSD(portfolio.totalPortfolioValue);
+      document.getElementById('totalPnl').textContent = formatUSD(portfolio.totalUnrealizedPnl);
+      document.getElementById('totalPnl').className = 'stat-pnl ' + (portfolio.totalUnrealizedPnl >= 0 ? 'pos-pnl' : 'pos-pnl negative');
+      
+      // Positions
+      const positionsHtml = (portfolio.positions || []).map(pos => {
+        const pnlVal = pos.unrealizedPnl || 0;
+        return `<div class="position"><span class="pos-symbol">${pos.symbol}</span><span>${parseFloat(pos.quantity).toFixed(4)}</span><span class="pos-pnl ${pnlVal >= 0 ? '' : 'negative'}">${formatUSD(pnlVal)}</span></div>`;
+      }).join('') || '<div style="color:#8b949e">No positions</div>';
+      document.getElementById('positions').innerHTML = positionsHtml;
+      
+      // Performance
+      if (perf) {
+        document.getElementById('totalReturn').textContent = formatPct(perf.totalReturnPct);
+        document.getElementById('totalReturn').className = 'stat-value ' + (perf.totalReturnPct >= 0 ? 'pos-pnl' : 'pos-pnl negative');
+        document.getElementById('totalPnlAbs').textContent = formatUSD(perf.totalPnl);
+      }
+      
+      // Decisions from trades
+      if (tradesRes?.response?.trades?.length) {
+        const lastTrade = tradesRes.response.trades[0];
+        const decision = lastTrade.side.toUpperCase();
+        const note = lastTrade.note || `${lastTrade.side} ${lastTrade.symbol}`;
+        document.getElementById('lastDecision').innerHTML = `<strong>${decision} ${lastTrade.symbol}</strong><br><span style="color:#8b949e">${note.substring(0, 100)}${note.length > 100 ? '...' : ''}</span>`;
+        document.getElementById('lastDecision').className = 'decision decision-' + decision.toLowerCase();
+      }
+      
+      // Updated time
+      document.getElementById('updatedAt').textContent = new Date().toLocaleTimeString();
+    }
+    
+    updateDashboard();
+    setInterval(updateDashboard, 30000);
+  </script>
 </body>
 </html>
