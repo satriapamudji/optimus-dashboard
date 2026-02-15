@@ -2,7 +2,11 @@
   publish = "."
   command = "echo 'No build needed'"
 
+[functions]
+  directory = "netlify/functions"
+
 [[redirect]]
   from = "/api/*"
   to = "/.netlify/functions/api/:splat"
   status = 200
+  force = true
