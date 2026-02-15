@@ -1,1 +1,13 @@
-[]
+[
+  {
+    "network": "BASE",
+    "timestamp": "2026-02-15T10:02:35.288678Z",
+    "token": "Unknown",
+    "price": null,
+    "liquidity": null,
+    "volume": null,
+    "trend": "Sideways",
+    "narrative": "**What is it:** Base is Coinbase's Ethereum L2 optimistic rollup, now the dominant Layer 2 by TVL (46.58% market share). The network has overtaken Ethereum and BNB Chain in DEX volumes for the first time, hitting ~$16.5B in 7-day DEX volume. Key tokens include meme coins BRETT, TOSHI, DEGEN, and DeFi protocols like Aerodrome Finance. **The Story:**",
+    "verdict": "NEUTRAL"
+  }
+]
